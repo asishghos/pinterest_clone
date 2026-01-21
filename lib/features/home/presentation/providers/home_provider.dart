@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:pinterest/features/home/data/datasources/pin_remote_datasource.dart';
@@ -60,18 +62,19 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   HomeNotifier(this.repository) : super(HomeState());
 
-  Future<void> loadPins() async {
+  Future<void> loadPins({int page = 1, bool append = false}) async {
     if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final pins = await repository.getCuratedPins(page: 1);
+      final newPins = await repository.getCuratedPins(page: page);
+
       state = state.copyWith(
-        pins: pins,
+        pins: append ? [...state.pins, ...newPins] : newPins,
         isLoading: false,
-        currentPage: 1,
-        hasMore: pins.isNotEmpty,
+        currentPage: page,
+        hasMore: newPins.isNotEmpty,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -106,7 +109,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Future<void> refresh() async {
     state = HomeState();
-    await loadPins();
+    await loadPins(page: Random().nextInt(100) + 1);
   }
 }
 

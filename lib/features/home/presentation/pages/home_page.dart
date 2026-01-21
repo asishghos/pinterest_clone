@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -22,7 +24,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(homeProvider.notifier).loadPins();
+      ref.read(homeProvider.notifier).loadPins(page: Random().nextInt(100) + 1);
+      ;
     });
     _scrollController.addListener(_onScroll);
   }
@@ -49,18 +52,26 @@ class _HomePageState extends ConsumerState<HomePage> {
         backgroundColor: Colors.black,
         title: Row(
           children: [
-            Text(
-              "For You",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 24,
-                decoration: TextDecoration.underline,
-                decorationColor: Colors.white,
-              ),
+            Column(
+              children: [
+                Text(
+                  "For You",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    // decoration: TextDecoration.underline,
+                    decorationColor: Colors.white,
+                  ),
+                ),
+              ],
             ),
             Spacer(),
-            Icon(Icons.edit, color: Colors.white, size: 32),
+            HugeIcon(
+              icon: HugeIcons.strokeRoundedAiEditing,
+              color: Colors.white,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -175,7 +186,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () => ref.read(homeProvider.notifier).loadPins(),
+            onPressed: () => ref
+                .read(homeProvider.notifier)
+                .loadPins(page: Random().nextInt(100) + 1),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -193,13 +206,14 @@ class _HomePageState extends ConsumerState<HomePage> {
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
+          if (index == 0) context.push('/');
           if (index == 1) context.push('/search');
           if (index == 4) context.push('/profile');
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white,
-        backgroundColor: Color(0xFFF444444),
+        backgroundColor: AppColors.surfaceVariant,
         selectedFontSize: 12,
         unselectedFontSize: 12,
         items: [
