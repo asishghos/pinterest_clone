@@ -19,7 +19,8 @@ class PinterestApp extends StatelessWidget {
           seedColor: AppColors.primary,
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: Colors.white,
+        fontFamily: 'Roboto',
+        scaffoldBackgroundColor: Colors.black,
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,

@@ -1,3 +1,5 @@
+import 'dart:developer' as Developer;
+
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/pin_model.dart';
@@ -18,6 +20,7 @@ class PinRemoteDataSource {
       );
 
       final photos = response.data['photos'] as List;
+      Developer.log("total photo we got " + photos.length.toString());
       return photos.map((json) => PinModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to fetch curated pins: $e');
@@ -36,6 +39,8 @@ class PinRemoteDataSource {
       );
 
       final photos = response.data['photos'] as List;
+      Developer.log("total photo we got " + photos.length.toString());
+
       return photos.map((json) => PinModel.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Failed to search pins: $e');
@@ -45,6 +50,8 @@ class PinRemoteDataSource {
   Future<PinModel> getPinById(int id) async {
     try {
       final response = await dioClient.get('${ApiConstants.photoDetail}/$id');
+      Developer.log("Details of the photo " + response.toString());
+
       return PinModel.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to fetch pin details: $e');

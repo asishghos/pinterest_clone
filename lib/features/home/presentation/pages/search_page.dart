@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../providers/search_provider.dart';
 import '../../../home/presentation/widgets/pin_card.dart';
-import '../../../../core/constants/app_colors.dart';
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -16,6 +16,7 @@ class SearchPage extends ConsumerStatefulWidget {
 class _SearchPageState extends ConsumerState<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -87,6 +88,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           : searchState.pins.isEmpty
           ? _buildEmptyState()
           : _buildResultsGrid(searchState),
+      bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
@@ -202,6 +204,82 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           Text(
             'Try searching for something else',
             style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavBar() {
+    return Container(
+      child: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() => _selectedIndex = index);
+          if (index == 1) context.push('/search');
+          if (index == 4) context.push('/profile');
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white,
+        backgroundColor: Color(0xFFF444444),
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        items: [
+          BottomNavigationBarItem(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedHome01,
+              color: Colors.white,
+            ),
+            activeIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedHome01,
+              color: Colors.white,
+            ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedSearch01,
+              color: Colors.white,
+            ),
+            activeIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedSearch01,
+              color: Colors.white,
+            ),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedAdd01,
+              color: Colors.white,
+            ),
+            activeIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedAdd01,
+              color: Colors.white,
+            ),
+            label: 'Create',
+          ),
+          BottomNavigationBarItem(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedMessage02,
+              color: Colors.white,
+            ),
+            activeIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedMessage02,
+              color: Colors.white,
+            ),
+            label: 'Messages',
+          ),
+          BottomNavigationBarItem(
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedUser,
+              color: Colors.white,
+            ),
+            activeIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedUser,
+              color: Colors.white,
+            ),
+            label: 'Profile',
           ),
         ],
       ),

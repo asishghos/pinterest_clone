@@ -33,6 +33,7 @@ class DioClient {
         queryParameters: queryParameters,
         options: options,
       );
+      // print(response.toString());
       return response;
     } on DioException catch (e) {
       throw _handleError(e);

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/pin.dart';
 import '../../../../core/constants/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PinCard extends StatefulWidget {
   final Pin pin;
@@ -43,103 +44,117 @@ class _PinCardState extends State<PinCard> {
                   ]
                 : [],
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              fit: StackFit.passthrough,
-              children: [
-                Hero(
-                  tag: widget.heroTag,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.pin.src.medium,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Container(color: _parseColor(widget.pin.avgColor)),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.error),
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  fit: StackFit.passthrough,
+                  children: [
+                    Hero(
+                      tag: widget.heroTag,
+                      child: CachedNetworkImage(
+                        imageUrl: widget.pin.src.medium,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            Container(color: _parseColor(widget.pin.avgColor)),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.error),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                if (_isHovered)
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.0),
-                            Colors.black.withOpacity(0.6),
+                    if (_isHovered)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.0),
+                                Colors.black.withOpacity(0.6),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (_isHovered)
+                      Positioned(
+                        right: 12,
+                        bottom: 12,
+                        child: Material(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(24),
+                          child: InkWell(
+                            onTap: () {
+                              // Handle save action
+                            },
+                            borderRadius: BorderRadius.circular(24),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: Text(
+                                'Save',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (_isHovered)
+                      Positioned(
+                        left: 12,
+                        bottom: 12,
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: Colors.grey[300],
+                              child: Text(
+                                widget.pin.photographer[0].toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              constraints: const BoxConstraints(maxWidth: 120),
+                              child: Text(
+                                widget.pin.photographer,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                if (_isHovered)
-                  Positioned(
-                    right: 12,
-                    bottom: 12,
-                    child: Material(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(24),
-                      child: InkWell(
-                        onTap: () {
-                          // Handle save action
-                        },
-                        borderRadius: BorderRadius.circular(24),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: Text(
-                            'Save',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                if (_isHovered)
-                  Positioned(
-                    left: 12,
-                    bottom: 12,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.grey[300],
-                          child: Text(
-                            widget.pin.photographer[0].toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          constraints: const BoxConstraints(maxWidth: 120),
-                          child: Text(
-                            widget.pin.photographer,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 4),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  widget.pin.alt,
+                  style: GoogleFonts.roboto(color: Colors.white),
+                  textAlign: TextAlign.start,
+                  maxLines: 1,
+                ),
+              ),
+            ],
           ),
         ),
       ),

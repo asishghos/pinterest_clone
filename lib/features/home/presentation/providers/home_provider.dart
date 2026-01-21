@@ -87,11 +87,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final nextPage = state.currentPage + 1;
       final newPins = await repository.getCuratedPins(page: nextPage);
 
+      final existingIds = state.pins.map((e) => e.id).toSet();
+
+      final uniquePins = newPins
+          .where((pin) => !existingIds.contains(pin.id))
+          .toList();
+
       state = state.copyWith(
-        pins: [...state.pins, ...newPins],
+        pins: [...state.pins, ...uniquePins],
         isLoadingMore: false,
         currentPage: nextPage,
-        hasMore: newPins.isNotEmpty,
+        hasMore: uniquePins.isNotEmpty,
       );
     } catch (e) {
       state = state.copyWith(isLoadingMore: false);
