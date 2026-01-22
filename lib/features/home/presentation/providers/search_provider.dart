@@ -37,13 +37,21 @@ class SearchNotifier extends StateNotifier<SearchState> {
 
   SearchNotifier(this.repository) : super(SearchState());
 
-  Future<void> searchPins(String query) async {
+  Future<void> searchPins(
+    String query, {
+    int page = 1,
+    int perPage = 30,
+  }) async {
     if (query.trim().isEmpty) return;
 
     state = state.copyWith(isLoading: true, error: null, query: query);
 
     try {
-      final pins = await repository.searchPins(query);
+      final pins = await repository.searchPins(
+        query,
+        page: page,
+        perPage: perPage,
+      );
       state = state.copyWith(pins: pins, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

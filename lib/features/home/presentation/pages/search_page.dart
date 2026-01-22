@@ -4,8 +4,109 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:pinterest/core/constants/app_colors.dart';
+import 'package:pinterest/features/home/domain/entities/pin.dart';
+import 'package:pinterest/features/home/presentation/providers/home_provider.dart';
 import '../providers/search_provider.dart';
 import '../../../home/presentation/widgets/pin_card.dart';
+
+// Categories for carousel
+final carouselCategories = [
+  {
+    'title': 'Little luxuries in life',
+    'subtitle': 'Magical moments',
+    'keyword': 'luxury lifestyle',
+  },
+  {
+    'title': 'Cozy home vibes',
+    'subtitle': 'Interior inspiration',
+    'keyword': 'home decor',
+  },
+  {'title': 'Fashion trends', 'subtitle': 'Style guide', 'keyword': 'fashion'},
+  {
+    'title': 'Nature escapes',
+    'subtitle': 'Outdoor adventure',
+    'keyword': 'nature',
+  },
+  {
+    'title': 'Artistic expressions',
+    'subtitle': 'Creative ideas',
+    'keyword': 'art',
+  },
+  {
+    'title': 'Delicious recipes',
+    'subtitle': 'Food inspiration',
+    'keyword': 'food',
+  },
+  {
+    'title': 'Fitness goals',
+    'subtitle': 'Healthy living',
+    'keyword': 'fitness',
+  },
+];
+
+// Featured boards topics
+final featuredBoardsTopics = [
+  {'title': 'Escape to Indian hills', 'keyword': 'indian hills'},
+  {'title': 'Yoga mornings aesthetic', 'keyword': 'yoga'},
+  {'title': 'Minimalist fashion', 'keyword': 'minimalist fashion'},
+  {'title': 'Home decor ideas', 'keyword': 'home decor'},
+  {'title': 'Food photography', 'keyword': 'food photography'},
+  {'title': 'Travel destinations', 'keyword': 'travel'},
+  {'title': 'Modern architecture', 'keyword': 'architecture'},
+  {'title': 'Vintage aesthetics', 'keyword': 'vintage'},
+];
+
+// Ideas for you topics
+final ideasForYouTopics = [
+  'Mens photoshoot poses',
+  'Wedding decorations',
+  'DIY crafts',
+  'Bedroom makeover',
+  'Street style fashion',
+  'Dessert recipes',
+];
+
+// Providers for carousel items
+final carouselPinsProvider = FutureProvider.family<List<Pin>, String>((
+  ref,
+  keyword,
+) async {
+  final repository = ref.watch(pinRepositoryProvider);
+  try {
+    final pins = await repository.searchPins(keyword, perPage: 1);
+    return pins.take(1).toList();
+  } catch (e) {
+    return [];
+  }
+});
+
+// Providers for featured boards
+final featuredBoardPinsProvider = FutureProvider.family<List<Pin>, String>((
+  ref,
+  keyword,
+) async {
+  final repository = ref.watch(pinRepositoryProvider);
+  try {
+    final pins = await repository.searchPins(keyword, perPage: 3);
+    return pins.take(5).toList();
+  } catch (e) {
+    return [];
+  }
+});
+
+// Provider for ideas for you
+final ideasPinsProvider = FutureProvider.family<List<Pin>, String>((
+  ref,
+  keyword,
+) async {
+  final repository = ref.watch(pinRepositoryProvider);
+  try {
+    final pins = await repository.searchPins(keyword, perPage: 5);
+    return pins.take(10).toList();
+  } catch (e) {
+    return [];
+  }
+});
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -17,14 +118,16 @@ class SearchPage extends ConsumerStatefulWidget {
 class _SearchPageState extends ConsumerState<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final PageController _pageController = PageController();
-  int _selectedIndex = 1;
   int _currentCarouselIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    // Preload carousel data
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // _focusNode.requestFocus();
+      for (var category in carouselCategories) {
+        ref.read(carouselPinsProvider(category['keyword']!));
+      }
     });
   }
 
@@ -77,6 +180,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       ),
                       onPressed: () {
                         _searchController.clear();
+                        ref.read(searchProvider.notifier).clearSearch();
                         setState(() {});
                       },
                     )
@@ -105,7 +209,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           : searchState.pins.isEmpty
           ? _buildEmptyState()
           : _buildResultsGrid(searchState),
-      bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
@@ -118,34 +221,18 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           const SizedBox(height: 24),
           _buildFeaturedBoards(),
           const SizedBox(height: 24),
-          _buildIdeasForYou(),
+          ...ideasForYouTopics.map(
+            (topic) => Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: _buildIdeasForYou(topic),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildHeroCarousel() {
-    final carouselItems = [
-      {
-        'title': 'Little luxuries in life',
-        'subtitle': 'Magical moments',
-        'image':
-            'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800',
-      },
-      {
-        'title': 'Cozy home vibes',
-        'subtitle': 'Interior inspiration',
-        'image':
-            'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800',
-      },
-      {
-        'title': 'Fashion trends',
-        'subtitle': 'Style guide',
-        'image':
-            'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800',
-      },
-    ];
-
     return Column(
       children: [
         SizedBox(
@@ -157,55 +244,73 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                 _currentCarouselIndex = index;
               });
             },
-            itemCount: carouselItems.length,
+            itemCount: carouselCategories.length,
             itemBuilder: (context, index) {
-              final item = carouselItems[index];
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  image: DecorationImage(
-                    image: NetworkImage(item['image']!),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7),
-                      ],
+              final category = carouselCategories[index];
+              final pinsAsync = ref.watch(
+                carouselPinsProvider(category['keyword']!),
+              );
+
+              return pinsAsync.when(
+                data: (pins) {
+                  final imageUrl = pins.isNotEmpty ? pins.first.url : null;
+
+                  return GestureDetector(
+                    onTap: () => _performSearch(category['keyword']!),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.grey[900],
+                        image: imageUrl != null
+                            ? DecorationImage(
+                                image: NetworkImage(imageUrl),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.7),
+                            ],
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              category['subtitle']!,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              category['title']!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['subtitle']!,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        item['title']!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                  );
+                },
+                loading: () => _buildCarouselPlaceholder(category),
+                error: (_, __) => _buildCarouselPlaceholder(category),
               );
             },
           ),
@@ -214,7 +319,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
-            carouselItems.length,
+            carouselCategories.length,
             (index) => Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
               width: 8,
@@ -229,6 +334,50 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCarouselPlaceholder(Map<String, String> category) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.grey[900],
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              category['subtitle']!,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              category['title']!,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -265,110 +414,84 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: 5,
+            itemCount: featuredBoardsTopics.length,
             itemBuilder: (context, index) {
-              final boards = [
-                {
-                  'title': 'Escape to Indian hills',
-                  'subtitle': 'Pinterest India',
-                  'pins': '41 Pins',
-                  'time': '7mo',
-                  'image':
-                      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
-                },
-                {
-                  'title': 'Yoga mornings aesthetic',
-                  'subtitle': 'Pinterest India',
-                  'pins': '41 Pins',
-                  'time': '7mo',
-                  'image':
-                      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400',
-                },
-                {
-                  'title': 'Minimalist fashion',
-                  'subtitle': 'Style Guide',
-                  'pins': '32 Pins',
-                  'time': '5mo',
-                  'image':
-                      'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400',
-                },
-                {
-                  'title': 'Home decor ideas',
-                  'subtitle': 'Interior Inspo',
-                  'pins': '28 Pins',
-                  'time': '3mo',
-                  'image':
-                      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400',
-                },
-                {
-                  'title': 'Food photography',
-                  'subtitle': 'Foodie Heaven',
-                  'pins': '56 Pins',
-                  'time': '2mo',
-                  'image':
-                      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400',
-                },
-              ];
+              final board = featuredBoardsTopics[index];
+              final pinsAsync = ref.watch(
+                featuredBoardPinsProvider(board['keyword']!),
+              );
 
-              final board = boards[index];
-              return Container(
-                width: 180,
-                margin: const EdgeInsets.only(right: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        board['image']!,
-                        height: 180,
-                        width: 180,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: 180,
-                            width: 180,
-                            color: Colors.grey[800],
-                            child: const Icon(Icons.image, color: Colors.grey),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      board['title']!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          board['subtitle']!,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
+              return pinsAsync.when(
+                data: (pins) {
+                  final imageUrl = pins.isNotEmpty ? pins.first.url : null;
+                  final pinCount = pins.length;
+
+                  return GestureDetector(
+                    onTap: () => _performSearch(board['keyword']!),
+                    child: Container(
+                      width: 180,
+                      margin: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: imageUrl != null
+                                ? Image.network(
+                                    imageUrl,
+                                    height: 180,
+                                    width: 180,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return _buildBoardPlaceholder();
+                                    },
+                                  )
+                                : _buildBoardPlaceholder(),
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.verified, color: Colors.red, size: 14),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${board['pins']} • ${board['time']}',
-                      style: const TextStyle(
-                        color: Colors.white60,
-                        fontSize: 12,
+                          const SizedBox(height: 8),
+                          Text(
+                            board['title']!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Text(
+                                'Pinterest',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.verified,
+                                color: Colors.red,
+                                size: 14,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$pinCount Pins',
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
+                loading: () => _buildBoardLoadingItem(board['title']!),
+                error: (_, __) => _buildBoardLoadingItem(board['title']!),
               );
             },
           ),
@@ -377,43 +500,89 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     );
   }
 
-  Widget _buildIdeasForYou() {
+  Widget _buildBoardPlaceholder() {
+    return Container(
+      height: 180,
+      width: 180,
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Center(
+        child: Icon(Icons.image, color: Colors.grey, size: 40),
+      ),
+    );
+  }
+
+  Widget _buildBoardLoadingItem(String title) {
+    return Container(
+      width: 180,
+      margin: const EdgeInsets.only(right: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 180,
+            width: 180,
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIdeasForYou(String topic) {
+    final pinsAsync = ref.watch(ideasPinsProvider(topic));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'Ideas for you',
-            style: TextStyle(
+            topic,
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Mens photoshoot poses',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 180,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 6,
-                  itemBuilder: (context, index) {
-                    return Container(
+        const SizedBox(height: 12),
+        pinsAsync.when(
+          data: (pins) {
+            if (pins.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            return SizedBox(
+              height: 180,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: pins.length,
+                itemBuilder: (context, index) {
+                  final pin = pins[index];
+                  return GestureDetector(
+                    onTap: () {
+                      // Navigate to pin detail
+                      context.push('/pin/${pin.id}');
+                    },
+                    child: Container(
                       width: 180,
                       margin: const EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
@@ -423,31 +592,50 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Image.network(
-                          'https://images.unsplash.com/photo-${1500000000000 + index * 1000000}?w=400',
+                          pin.url,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
                               color: Colors.grey[800],
                               child: const Icon(
-                                Icons.person,
+                                Icons.image,
                                 color: Colors.grey,
                               ),
                             );
                           },
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-            ],
+            );
+          },
+          loading: () => SizedBox(
+            height: 180,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 6,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: 180,
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[800],
+                  ),
+                );
+              },
+            ),
           ),
+          error: (_, __) => const SizedBox.shrink(),
         ),
       ],
     );
   }
 
-  Widget _buildResultsGrid(searchState) {
+  Widget _buildResultsGrid(SearchState searchState) {
     return MasonryGridView.count(
       crossAxisCount: 2,
       mainAxisSpacing: 12,
@@ -499,83 +687,6 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           Text(
             'Try searching for something else',
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavBar() {
-    return Container(
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-          if (index == 0) context.push('/');
-          if (index == 1) context.push('/search');
-          if (index == 4) context.push('/profile');
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white,
-        backgroundColor: AppColors.surfaceVariant,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        items: [
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedHome01,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedHome01,
-              color: Colors.white,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedSearch01,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedSearch01,
-              color: Colors.white,
-            ),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedAdd01,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedAdd01,
-              color: Colors.white,
-            ),
-            label: 'Create',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedMessage02,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedMessage02,
-              color: Colors.white,
-            ),
-            label: 'Messages',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedUser,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedUser,
-              color: Colors.white,
-            ),
-            label: 'Profile',
           ),
         ],
       ),

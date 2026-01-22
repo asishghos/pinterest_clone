@@ -113,6 +113,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 }
 
+// Use keepAlive to cache the provider state
 final homeProvider = StateNotifierProvider<HomeNotifier, HomeState>((ref) {
+  ref.keepAlive(); // Keep provider alive to maintain cache
   return HomeNotifier(ref.watch(pinRepositoryProvider));
 });

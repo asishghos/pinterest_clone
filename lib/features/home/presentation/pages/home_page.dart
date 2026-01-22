@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:go_router/go_router.dart';
 import '../providers/home_provider.dart';
 import '../widgets/pin_card.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -18,14 +17,18 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final ScrollController _scrollController = ScrollController();
-  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(homeProvider.notifier).loadPins(page: Random().nextInt(100) + 1);
-      ;
+      final homeState = ref.read(homeProvider);
+      // Only load if pins are empty (first time or after refresh)
+      if (homeState.pins.isEmpty) {
+        ref
+            .read(homeProvider.notifier)
+            .loadPins(page: Random().nextInt(100) + 1);
+      }
     });
     _scrollController.addListener(_onScroll);
   }
@@ -90,7 +93,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
@@ -194,83 +196,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               foregroundColor: Colors.white,
             ),
             child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavBar() {
-    return Container(
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-          if (index == 0) context.push('/');
-          if (index == 1) context.push('/search');
-          if (index == 4) context.push('/profile');
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white,
-        backgroundColor: AppColors.surfaceVariant,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        items: [
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedHome01,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedHome01,
-              color: Colors.white,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedSearch01,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedSearch01,
-              color: Colors.white,
-            ),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedAdd01,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedAdd01,
-              color: Colors.white,
-            ),
-            label: 'Create',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedMessage02,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedMessage02,
-              color: Colors.white,
-            ),
-            label: 'Messages',
-          ),
-          BottomNavigationBarItem(
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedUser,
-              color: Colors.white,
-            ),
-            activeIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedUser,
-              color: Colors.white,
-            ),
-            label: 'Profile',
           ),
         ],
       ),

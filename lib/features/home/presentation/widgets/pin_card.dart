@@ -65,83 +65,6 @@ class _PinCardState extends State<PinCard> {
                         ),
                       ),
                     ),
-                    if (_isHovered)
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.0),
-                                Colors.black.withOpacity(0.6),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (_isHovered)
-                      Positioned(
-                        right: 12,
-                        bottom: 12,
-                        child: Material(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(24),
-                          child: InkWell(
-                            onTap: () {
-                              // Handle save action
-                            },
-                            borderRadius: BorderRadius.circular(24),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              child: Text(
-                                'Save',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (_isHovered)
-                      Positioned(
-                        left: 12,
-                        bottom: 12,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: Colors.grey[300],
-                              child: Text(
-                                widget.pin.photographer[0].toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              constraints: const BoxConstraints(maxWidth: 120),
-                              child: Text(
-                                widget.pin.photographer,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -176,7 +99,7 @@ class _PinCardState extends State<PinCard> {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: () {
-                      openModalSheet(context);
+                      openModalSheet(context, widget.pin.src.medium);
                     },
                   ),
                 ],
@@ -188,22 +111,66 @@ class _PinCardState extends State<PinCard> {
     );
   }
 
-  void openModalSheet(BuildContext context) {
+  void openModalSheet(BuildContext context, String imgUrl) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: const BoxDecoration(
-            color: AppColors.surfaceVariant, // dark surface
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            color: Color(0xFF2B2B2B), // Pinterest dark sheet
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _sheetHandle(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 12),
+
+                  InkWell(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  Column(
+                    children: [
+                      ClipRRect(
+                        child: Image.network(
+                          imgUrl,
+                          width: 96,
+                          height: 96,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "This Pin was inspired by your recent activity",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const Spacer(),
+                  const SizedBox(width: 40),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
               _sheetItem(
                 icon: HugeIcons.strokeRoundedPin,
                 title: 'Save',
@@ -256,25 +223,6 @@ class _PinCardState extends State<PinCard> {
           ),
         );
       },
-    );
-  }
-
-  Widget _sheetHandle() {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            child: HugeIcon(
-              icon: HugeIcons.strokeRoundedCancel01,
-              color: AppColors.iconPrimary,
-              size: 32,
-            ),
-          ),
-          Spacer(),
-        ],
-      ),
     );
   }
 
