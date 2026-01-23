@@ -1,11 +1,7 @@
-import 'dart:developer' as Developer;
-
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../providers/auth_provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -22,12 +18,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Replace with your Clerk publishable key
-  final String clerkPublishableKey =
-      // dotenv.env['CLERK_PUBLISHABLE_KEY'] ??
-      // pk_test_cmF0aW9uYWwtZ3JpZmZvbi01Ny5jbGVyay5hY2NvdW50cy5kZXYk
-      'sk_test_btfKGdIJTJWZggmYgOBj5HnxB7hEu3tmwaytvw5S4z';
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -35,7 +25,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     super.dispose();
   }
 
-  Future<void> _handleAuth() async {
+  Future<void> _handleEmailAuth() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -44,45 +34,62 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     });
 
     try {
-      // Note: Clerk's official API integration
-      // You'll need to implement your backend or use Clerk's client SDK
-      final url = _isSignUp
-          ? 'https://api.clerk.com/v1/client/sign_ups'
-          : 'https://api.clerk.com/v1/client/sign_ins';
+      final authNotifier = ref.read(authProvider.notifier);
 
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $clerkPublishableKey',
-        },
-        body: jsonEncode({
-          'email_address': _emailController.text,
-          'password': _passwordController.text,
-        }),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-
-        // Store the session token using auth provider
-        await ref
-            .read(authProvider.notifier)
-            .signIn(data['client']['sessions'][0]['id']);
+      if (_isSignUp) {
+        await authNotifier.signUpWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+        developer.log("Sign up successful");
       } else {
-        Developer.log('Auth error: ${response.body}');
-        setState(() {
-          _errorMessage = 'Authentication failed. Please try again.';
-        });
+        await authNotifier.signInWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+        developer.log("Sign in successful");
+      }
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, "/home");
       }
     } catch (e) {
+      developer.log("Auth error: $e");
       setState(() {
-        _errorMessage = 'An error occurred: ${e.toString()}';
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
       });
     } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // await ref.read(authProvider.notifier).signInWithGoogle();
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, "/home");
+      }
+    } catch (e) {
+      developer.log("Google sign in error: $e");
       setState(() {
-        _isLoading = false;
+        _errorMessage = "Google sign in failed. Please try again.";
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -123,6 +130,44 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
+
+                  // Google Sign In Button
+                  OutlinedButton.icon(
+                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: Image.network(
+                      'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                      height: 24,
+                      width: 24,
+                    ),
+                    label: const Text(
+                      'Continue with Google',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(child: Divider(color: Colors.grey[400])),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'OR',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: Colors.grey[400])),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Email Field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -144,6 +189,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     },
                   ),
                   const SizedBox(height: 16),
+
+                  // Password Field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
@@ -158,13 +205,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
                       }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
+                      if (value.length < 8) {
+                        return 'Password must be at least 8 characters';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 24),
+
+                  // Error Message
                   if (_errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -174,8 +223,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         textAlign: TextAlign.center,
                       ),
                     ),
+
+                  // Sign In/Up Button
                   FilledButton(
-                    onPressed: _isLoading ? null : _handleAuth,
+                    onPressed: _isLoading ? null : _handleEmailAuth,
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -200,6 +251,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Toggle Sign In/Up
                   TextButton(
                     onPressed: () {
                       setState(() {
@@ -222,3 +275,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     );
   }
 }
+
+// ============================================
+// main.dart - FIREBASE VERSION
+// ============================================

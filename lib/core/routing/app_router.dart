@@ -6,62 +6,56 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/pages/pin_details.dart';
 import '../../features/home/presentation/pages/profile_page.dart';
 import '../../features/home/presentation/pages/search_page.dart';
-import '../widgets/main_shell.dart';
+import '../../main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  // Watch auth state to trigger router rebuilds
   ref.watch(authProvider);
 
   return GoRouter(
+    debugLogDiagnostics: true,
     initialLocation: '/',
     redirect: (context, state) {
-      final authState = ref.read(authProvider);
-      final isAuthenticated = authState.isAuthenticated;
-      final isAuthPage = state.matchedLocation == '/auth';
-      final isLoading = authState.isLoading;
+      final auth = ref.read(authProvider);
 
-      // Wait for auth check to complete
-      if (isLoading) {
-        return null; // Stay on current route while loading
-      }
+      final isLoggedIn = auth.isAuthenticated;
+      final isLoading = auth.isLoading;
+      final isAuthRoute = state.matchedLocation == '/auth';
 
-      // Redirect to auth if not authenticated and not already on auth page
-      if (!isAuthenticated && !isAuthPage) {
+      if (isLoading) return null;
+
+      // If NOT logged in → send to auth
+      if (!isLoggedIn && !isAuthRoute) {
         return '/auth';
       }
 
-      // Redirect to home if authenticated and on auth page
-      if (isAuthenticated && isAuthPage) {
+      // If logged in → block auth page
+      if (isLoggedIn && isAuthRoute) {
         return '/';
       }
 
-      return null; // No redirect needed
+      return null;
     },
+
     routes: [
-      GoRoute(path: '/auth', builder: (context, state) => const AuthPage()),
+      GoRoute(path: '/auth', builder: (_, __) => const AuthPage()),
+
       ShellRoute(
-        builder: (context, state, child) {
-          return MainShell(child: child);
-        },
+        builder: (context, state, child) => MainShell(child: child),
         routes: [
-          GoRoute(path: '/', builder: (context, state) => const HomePage()),
-          GoRoute(
-            path: '/search',
-            builder: (context, state) => const SearchPage(),
-          ),
-          GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfilePage(),
-          ),
+          GoRoute(path: '/', builder: (_, __) => HomePage()),
+          GoRoute(path: '/search', builder: (_, __) => SearchPage()),
+          GoRoute(path: '/profile', builder: (_, __) => ProfilePage()),
+
           GoRoute(
             path: '/pin/:id',
             builder: (context, state) {
-              final pinId = state.pathParameters['id'] ?? '';
+              final id = state.pathParameters['id'] ?? '';
               final extra = state.extra as Map<String, dynamic>?;
+
               return PinDetailPage(
-                pinId: pinId,
-                imageUrl: extra?['imageUrl'] as String? ?? '',
-                heroTag: extra?['heroTag'] as String? ?? '',
+                pinId: id,
+                imageUrl: extra?['imageUrl'] ?? '',
+                heroTag: extra?['heroTag'] ?? '',
               );
             },
           ),

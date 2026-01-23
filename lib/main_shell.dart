@@ -8,10 +8,12 @@ class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.child});
 
   int _getCurrentIndex(String location) {
-    if (location == '/') return 0;
-    if (location == '/search') return 1;
-    if (location == '/profile') return 4;
-    return 0;
+    debugPrint("CURRENT ROUTE → $location");
+
+    if (location.startsWith('/search')) return 1;
+    if (location.startsWith('/profile')) return 4;
+
+    return 0; // Home default
   }
 
   @override
@@ -19,7 +21,6 @@ class MainShell extends StatelessWidget {
     final location = GoRouterState.of(context).matchedLocation;
     final currentIndex = _getCurrentIndex(location);
 
-    // Don't show navbar on pin detail page
     final showNavbar = !location.startsWith('/pin');
 
     return Scaffold(

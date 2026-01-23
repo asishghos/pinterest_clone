@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -18,18 +19,25 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   final ScrollController _scrollController = ScrollController();
 
+  bool _isFetchingMore = false;
+
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final homeState = ref.read(homeProvider);
-      // Only load if pins are empty (first time or after refresh)
+
+      debugPrint("HOME INIT → pins count: ${homeState.pins.length}");
+
       if (homeState.pins.isEmpty) {
+        debugPrint("LOADING INITIAL PINS...");
         ref
             .read(homeProvider.notifier)
             .loadPins(page: Random().nextInt(100) + 1);
       }
     });
+
     _scrollController.addListener(_onScroll);
   }
 
@@ -40,9 +48,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 500) {
-      ref.read(homeProvider.notifier).loadMorePins();
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+
+    if (currentScroll >= maxScroll - 500 && !_isFetchingMore) {
+      debugPrint("SCROLL → Loading more pins...");
+      _isFetchingMore = true;
+
+      ref.read(homeProvider.notifier).loadMorePins().then((_) {
+        _isFetchingMore = false;
+      });
     }
   }
 
@@ -55,21 +70,15 @@ class _HomePageState extends ConsumerState<HomePage> {
         backgroundColor: Colors.black,
         title: Row(
           children: [
-            Column(
-              children: [
-                Text(
-                  "For You",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    // decoration: TextDecoration.underline,
-                    decorationColor: Colors.white,
-                  ),
-                ),
-              ],
+            Text(
+              "For You",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
-            Spacer(),
+            const Spacer(),
             HugeIcon(
               icon: HugeIcons.strokeRoundedAiEditing,
               color: Colors.white,
@@ -78,20 +87,19 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () => ref.read(homeProvider.notifier).refresh(),
-              color: AppColors.primary,
-              child: homeState.isLoading && homeState.pins.isEmpty
-                  ? _buildShimmerLoading()
-                  : homeState.error != null && homeState.pins.isEmpty
-                  ? _buildErrorWidget(homeState.error!)
-                  : _buildMasonryGrid(homeState),
-            ),
-          ),
-        ],
+
+      body: RefreshIndicator(
+        onRefresh: () async {
+          debugPrint("REFRESH → Reloading pins...");
+          await ref.read(homeProvider.notifier).refresh();
+        },
+        color: AppColors.primary,
+
+        child: homeState.isLoading && homeState.pins.isEmpty
+            ? _buildShimmerLoading()
+            : homeState.error != null && homeState.pins.isEmpty
+            ? _buildErrorWidget(homeState.error!)
+            : _buildMasonryGrid(homeState),
       ),
     );
   }
@@ -110,6 +118,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         }
 
         final pin = state.pins[index];
+        developer.log('Building pin card for pin id: ${pin.id}');
         return PinCard(pin: pin, heroTag: 'pin-${pin.id}-$index');
       },
     );

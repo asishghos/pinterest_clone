@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
-import '../constants/app_colors.dart';
+import 'core/constants/app_colors.dart';
 
 class CommonNavbar extends StatelessWidget {
   final int currentIndex;
@@ -9,24 +9,45 @@ class CommonNavbar extends StatelessWidget {
   const CommonNavbar({super.key, required this.currentIndex});
 
   void _onItemTapped(BuildContext context, int index) {
+    debugPrint("NAVBAR CLICKED → index: $index");
+
+    if (index == currentIndex) {
+      debugPrint("Already on same page, skipping navigation");
+      return;
+    }
+
+    final router = GoRouter.of(context);
+
     switch (index) {
       case 0:
-        context.go('/');
+        debugPrint("Navigating → HOME");
+        router.go('/');
         break;
+
       case 1:
-        context.go('/search');
+        debugPrint("Navigating → SEARCH");
+        router.go('/search');
         break;
+
       case 2:
+        debugPrint("Opening → CREATE Bottom Sheet");
         _showCreateBottomSheet(context);
         break;
+
       case 3:
-        // Messages - placeholder
+        debugPrint("Messages clicked → NOT IMPLEMENTED YET");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Messages page not added yet")),
+        );
         break;
+
       case 4:
-        context.go('/profile');
+        debugPrint("Navigating → PROFILE");
+        router.go('/profile');
         break;
     }
   }
+
 
   void _showCreateBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -168,10 +189,9 @@ class CommonNavbar extends StatelessWidget {
         onTap: (index) => _onItemTapped(context, index),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white,
-        backgroundColor: AppColors.surfaceVariant,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: AppColors.surface,
+        showUnselectedLabels: true,
         items: [
           BottomNavigationBarItem(
             icon: HugeIcon(
@@ -192,6 +212,7 @@ class CommonNavbar extends StatelessWidget {
             activeIcon: HugeIcon(
               icon: HugeIcons.strokeRoundedSearch01,
               color: Colors.white,
+              strokeWidth: 4.0,
             ),
             label: 'Search',
           ),
@@ -203,6 +224,7 @@ class CommonNavbar extends StatelessWidget {
             activeIcon: HugeIcon(
               icon: HugeIcons.strokeRoundedAdd01,
               color: Colors.white,
+              strokeWidth: 4.0,
             ),
             label: 'Create',
           ),
@@ -214,6 +236,7 @@ class CommonNavbar extends StatelessWidget {
             activeIcon: HugeIcon(
               icon: HugeIcons.strokeRoundedMessage02,
               color: Colors.white,
+              strokeWidth: 4.0,
             ),
             label: 'Messages',
           ),
@@ -225,6 +248,7 @@ class CommonNavbar extends StatelessWidget {
             activeIcon: HugeIcon(
               icon: HugeIcons.strokeRoundedUser,
               color: Colors.white,
+              strokeWidth: 4.0,
             ),
             label: 'Profile',
           ),
