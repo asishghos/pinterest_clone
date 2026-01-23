@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hugeicons/hugeicons.dart';
-import 'package:pinterest/core/constants/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:pinterest/features/home/domain/entities/pin.dart';
 import 'package:pinterest/features/home/presentation/providers/home_provider.dart';
 import '../providers/search_provider.dart';
@@ -162,10 +161,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           ),
           child: TextField(
             controller: _searchController,
-            style: const TextStyle(color: Colors.white),
+            style: GoogleFonts.roboto(color: Colors.white),
             decoration: InputDecoration(
               hintText: 'Search for ideas',
-              hintStyle: const TextStyle(color: Color(0xFF8E8E93)),
+              hintStyle: GoogleFonts.roboto(color: Color(0xFF8E8E93)),
               prefixIcon: const Icon(
                 Icons.search,
                 color: Color(0xFF8E8E93),
@@ -288,7 +287,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           children: [
                             Text(
                               category['subtitle']!,
-                              style: const TextStyle(
+                              style: GoogleFonts.roboto(
                                 color: Colors.white70,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -297,7 +296,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                             const SizedBox(height: 8),
                             Text(
                               category['title']!,
-                              style: const TextStyle(
+                              style: GoogleFonts.roboto(
                                 color: Colors.white,
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
@@ -360,7 +359,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           children: [
             Text(
               category['subtitle']!,
-              style: const TextStyle(
+              style: GoogleFonts.roboto(
                 color: Colors.white70,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -369,7 +368,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
             const SizedBox(height: 8),
             Text(
               category['title']!,
-              style: const TextStyle(
+              style: GoogleFonts.roboto(
                 color: Colors.white,
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -385,11 +384,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'Explore featured boards',
-            style: TextStyle(
+            style: GoogleFonts.roboto(
               color: Colors.white70,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -397,11 +396,11 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           ),
         ),
         const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'Ideas you might like',
-            style: TextStyle(
+            style: GoogleFonts.roboto(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -451,7 +450,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           const SizedBox(height: 8),
                           Text(
                             board['title']!,
-                            style: const TextStyle(
+                            style: GoogleFonts.roboto(
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -462,9 +461,9 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Text(
+                              Text(
                                 'Pinterest',
-                                style: TextStyle(
+                                style: GoogleFonts.roboto(
                                   color: Colors.white70,
                                   fontSize: 12,
                                 ),
@@ -480,7 +479,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           const SizedBox(height: 2),
                           Text(
                             '$pinCount Pins',
-                            style: const TextStyle(
+                            style: GoogleFonts.roboto(
                               color: Colors.white60,
                               fontSize: 12,
                             ),
@@ -532,7 +531,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           const SizedBox(height: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: GoogleFonts.roboto(
               color: Colors.white,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -555,7 +554,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             topic,
-            style: const TextStyle(
+            style: GoogleFonts.roboto(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -677,7 +676,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           const SizedBox(height: 16),
           Text(
             'No results found',
-            style: TextStyle(
+            style: GoogleFonts.roboto(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.grey[400],
@@ -686,7 +685,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           const SizedBox(height: 8),
           Text(
             'Try searching for something else',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: GoogleFonts.roboto(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ),

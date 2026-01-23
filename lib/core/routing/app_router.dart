@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pinterest/features/home/data/models/pin_model.dart';
+import 'package:pinterest/features/home/domain/entities/pin.dart';
 import '../../features/auth/presentation/pages/auth_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -50,13 +52,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/pin/:id',
             builder: (context, state) {
               final id = state.pathParameters['id'] ?? '';
-              final extra = state.extra as Map<String, dynamic>?;
+              final extra = state.extra as Pin;
 
-              return PinDetailPage(
-                pinId: id,
-                imageUrl: extra?['imageUrl'] ?? '',
-                heroTag: extra?['heroTag'] ?? '',
-              );
+              return PinDetailPage(pin: extra);
             },
           ),
         ],

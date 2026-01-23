@@ -23,10 +23,7 @@ class _PinCardState extends State<PinCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push(
-          '/pin/${widget.pin.id}',
-          extra: {'imageUrl': widget.pin.src.large, 'heroTag': widget.heroTag},
-        );
+        context.push('/pin/${widget.pin.id}', extra: widget.pin);
       },
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
@@ -153,9 +150,9 @@ class _PinCardState extends State<PinCard> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         "This Pin was inspired by your recent activity",
-                        style: TextStyle(
+                        style: GoogleFonts.roboto(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../providers/auth_provider.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
@@ -145,9 +146,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                       height: 24,
                       width: 24,
                     ),
-                    label: const Text(
+                    label:  Text(
                       'Continue with Google',
-                      style: TextStyle(fontSize: 16),
+                      style: GoogleFonts.roboto(fontSize: 16),
                     ),
                   ),
 
@@ -159,7 +160,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           'OR',
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: GoogleFonts.roboto(color: Colors.grey[600]),
                         ),
                       ),
                       Expanded(child: Divider(color: Colors.grey[400])),
@@ -219,7 +220,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Text(
                         _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
+                        style:  GoogleFonts.roboto(color: Colors.red),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -244,7 +245,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           )
                         : Text(
                             _isSignUp ? 'Sign Up' : 'Sign In',
-                            style: const TextStyle(
+                            style:  GoogleFonts.roboto(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -275,7 +276,3 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     );
   }
 }
-
-// ============================================
-// main.dart - FIREBASE VERSION
-// ============================================

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../providers/home_provider.dart';
 import '../widgets/pin_card.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -72,7 +73,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           children: [
             Text(
               "For You",
-              style: TextStyle(
+              style: GoogleFonts.roboto(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -187,12 +188,12 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 16),
           Text(
             'Something went wrong',
-            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            style: GoogleFonts.roboto(fontSize: 18, color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           Text(
             error,
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: GoogleFonts.roboto(fontSize: 14, color: Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),

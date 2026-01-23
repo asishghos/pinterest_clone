@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'core/constants/app_colors.dart';
 
@@ -47,7 +48,6 @@ class CommonNavbar extends StatelessWidget {
         break;
     }
   }
-
 
   void _showCreateBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -151,7 +151,7 @@ class CommonNavbar extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: GoogleFonts.roboto(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -159,7 +159,10 @@ class CommonNavbar extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: GoogleFonts.roboto(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ],
               ),

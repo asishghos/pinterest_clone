@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(const PinterestApp());
+  runApp(PinterestApp());
 }
 
 class PinterestApp extends StatelessWidget {
-  const PinterestApp({Key? key}) : super(key: key);
+  PinterestApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,30 +15,27 @@ class PinterestApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
-          elevation: 0,
-        ),
+        appBarTheme: AppBarTheme(backgroundColor: Colors.black, elevation: 0),
       ),
-      home: const MessagesPage(),
+      home: MessagesPage(),
     );
   }
 }
 
 class MessagesPage extends StatelessWidget {
-  const MessagesPage({Key? key}) : super(key: key);
+  MessagesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Inbox',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          style: GoogleFonts.roboto(fontSize: 28, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined, size: 28),
+            icon: Icon(Icons.edit_outlined, size: 28),
             onPressed: () {},
           ),
         ],
@@ -45,19 +43,25 @@ class MessagesPage extends StatelessWidget {
       body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Messages',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.roboto(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {},
                   child: Row(
-                    children: const [
-                      Text('See all', style: TextStyle(color: Colors.white)),
+                    children: [
+                      Text(
+                        'See all',
+                        style: GoogleFonts.roboto(color: Colors.white),
+                      ),
                       Icon(Icons.chevron_right, color: Colors.white),
                     ],
                   ),
@@ -73,26 +77,32 @@ class MessagesPage extends StatelessWidget {
                 color: Colors.grey[800],
                 borderRadius: BorderRadius.circular(28),
               ),
-              child: const Icon(Icons.person_add_outlined, size: 28),
+              child: Icon(Icons.person_add_outlined, size: 28),
             ),
-            title: const Text(
+            title: Text(
               'Find people to message',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              style: GoogleFonts.roboto(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
             ),
-            subtitle: const Text(
+            subtitle: Text(
               'Connect to start chatting',
-              style: TextStyle(color: Colors.grey),
+              style: GoogleFonts.roboto(color: Colors.grey),
             ),
           ),
-          const SizedBox(height: 24),
-          const Padding(
+          SizedBox(height: 24),
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
               'Updates',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              style: GoogleFonts.roboto(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildUpdateItem(
             'Still searching? Explore ideas related to Society Of Snow',
             '3d',
@@ -136,14 +146,14 @@ class MessagesPage extends StatelessWidget {
           color: Colors.grey[800],
           borderRadius: BorderRadius.circular(28),
         ),
-        child: const Icon(Icons.search, size: 28),
+        child: Icon(Icons.search, size: 28),
       ),
-      title: Text(text, style: const TextStyle(fontSize: 15)),
+      title: Text(text, style: GoogleFonts.roboto(fontSize: 15)),
       subtitle: Text(
         time,
-        style: const TextStyle(color: Colors.grey, fontSize: 13),
+        style: GoogleFonts.roboto(color: Colors.grey, fontSize: 13),
       ),
-      trailing: const Icon(Icons.more_horiz),
+      trailing: Icon(Icons.more_horiz),
     );
   }
 
@@ -162,7 +172,7 @@ class MessagesPage extends StatelessWidget {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         elevation: 0,
-        items: const [
+        items: [
           BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),
           BottomNavigationBarItem(
             icon: Icon(Icons.search, size: 28),
@@ -179,7 +189,7 @@ class MessagesPage extends StatelessWidget {
               backgroundColor: Color(0xFF00BFA5),
               child: Text(
                 'A',
-                style: TextStyle(
+                style: GoogleFonts.roboto(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -192,7 +202,7 @@ class MessagesPage extends StatelessWidget {
           if (index == 4) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
+              MaterialPageRoute(builder: (context) => ProfilePage()),
             );
           }
         },
@@ -202,55 +212,58 @@ class MessagesPage extends StatelessWidget {
 }
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  ProfilePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
+          IconButton(icon: Icon(Icons.share_outlined), onPressed: () {}),
+          IconButton(icon: Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 8),
-            const CircleAvatar(
+            SizedBox(height: 8),
+            CircleAvatar(
               radius: 50,
               backgroundColor: Color(0xFF00BFA5),
               child: Text(
                 'A',
-                style: TextStyle(
+                style: GoogleFonts.roboto(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Anonymous User',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: GoogleFonts.roboto(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               '@anonymous_user',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
+              style: GoogleFonts.roboto(color: Colors.grey, fontSize: 14),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               '0 followers · 0 following',
-              style: TextStyle(color: Colors.grey[400], fontSize: 14),
+              style: GoogleFonts.roboto(color: Colors.grey[400], fontSize: 14),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
                   Expanded(
@@ -259,39 +272,39 @@ class ProfilePage extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey[800],
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Share',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: GoogleFonts.roboto(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: BorderSide(color: Colors.grey[700]!),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Edit profile',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: GoogleFonts.roboto(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             DefaultTabController(
               length: 3,
               child: Column(
@@ -300,19 +313,19 @@ class ProfilePage extends StatelessWidget {
                     indicatorColor: Colors.white,
                     labelColor: Colors.white,
                     unselectedLabelColor: Colors.grey,
-                    tabs: const [
+                    tabs: [
                       Tab(text: 'Pins'),
                       Tab(text: 'Boards'),
                       Tab(text: 'Collages'),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: 'Search your Pins',
-                        hintStyle: TextStyle(color: Colors.grey[600]),
+                        hintStyle: GoogleFonts.roboto(color: Colors.grey[600]),
                         prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
                         filled: true,
                         fillColor: Colors.grey[900],
@@ -323,43 +336,43 @@ class ProfilePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
                       children: [
                         _buildFilterChip(Icons.grid_view, true),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         _buildFilterChip(
                           Icons.star,
                           false,
                           label: 'Favourites',
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         _buildFilterChip(null, false, label: 'Created by you'),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  const Padding(
+                  SizedBox(height: 24),
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Board suggestions',
-                        style: TextStyle(
+                        style: GoogleFonts.roboto(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   SizedBox(
                     height: 180,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       children: [
                         _buildBoardSuggestion('Fashion outfits', '21 Pins', [
                           Colors.red,
@@ -376,21 +389,21 @@ class ProfilePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  const Padding(
+                  SizedBox(height: 24),
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Your saved Pins',
-                        style: TextStyle(
+                        style: GoogleFonts.roboto(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _buildPinsGrid(),
                 ],
               ),
@@ -404,7 +417,7 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildFilterChip(IconData? icon, bool selected, {String? label}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: selected ? Colors.white : Colors.grey[850],
         borderRadius: BorderRadius.circular(24),
@@ -415,10 +428,10 @@ class ProfilePage extends StatelessWidget {
           if (icon != null)
             Icon(icon, size: 20, color: selected ? Colors.black : Colors.white),
           if (label != null) ...[
-            if (icon != null) const SizedBox(width: 4),
+            if (icon != null) SizedBox(width: 4),
             Text(
               label,
-              style: TextStyle(
+              style: GoogleFonts.roboto(
                 color: selected ? Colors.black : Colors.white,
                 fontWeight: FontWeight.w500,
               ),
@@ -432,7 +445,7 @@ class ProfilePage extends StatelessWidget {
   Widget _buildBoardSuggestion(String title, String count, List<Color> colors) {
     return Container(
       width: 150,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: EdgeInsets.symmetric(horizontal: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -444,24 +457,24 @@ class ProfilePage extends StatelessWidget {
             ),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.grey[850],
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
+                child: Text(
                   'Create',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: GoogleFonts.roboto(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          Text(count, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          SizedBox(height: 8),
+          Text(title, style: GoogleFonts.roboto(fontWeight: FontWeight.w600)),
+          Text(
+            count,
+            style: GoogleFonts.roboto(color: Colors.grey[600], fontSize: 13),
+          ),
         ],
       ),
     );
@@ -478,11 +491,11 @@ class ProfilePage extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 8.0),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 0.7,
           crossAxisSpacing: 8,
@@ -494,7 +507,7 @@ class ProfilePage extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             child: Container(
               color: Colors.grey[850],
-              child: const Center(
+              child: Center(
                 child: Icon(Icons.image, size: 48, color: Colors.grey),
               ),
             ),
@@ -519,7 +532,7 @@ class ProfilePage extends StatelessWidget {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         elevation: 0,
-        items: const [
+        items: [
           BottomNavigationBarItem(icon: Icon(Icons.home, size: 28), label: ''),
           BottomNavigationBarItem(
             icon: Icon(Icons.search, size: 28),
@@ -536,7 +549,7 @@ class ProfilePage extends StatelessWidget {
               backgroundColor: Color(0xFF00BFA5),
               child: Text(
                 'A',
-                style: TextStyle(
+                style: GoogleFonts.roboto(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'core/constants/app_colors.dart';
 import 'core/routing/app_router.dart';
 
@@ -26,11 +27,11 @@ class PinterestApp extends StatelessWidget {
               brightness: Brightness.dark,
             ),
 
-            appBarTheme: const AppBarTheme(
+            appBarTheme: AppBarTheme(
               backgroundColor: Colors.black,
               elevation: 0,
               iconTheme: IconThemeData(color: Colors.white),
-              titleTextStyle: TextStyle(
+              titleTextStyle: GoogleFonts.roboto(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

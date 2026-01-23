@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
@@ -61,14 +62,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           ),
           const SizedBox(height: 16),
           // Name
-          const Text(
+          Text(
             'Your Name',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            style: GoogleFonts.roboto(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             '@username',
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: GoogleFonts.roboto(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
           // Stats
@@ -102,9 +106,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Share profile',
-                      style: TextStyle(
+                      style: GoogleFonts.roboto(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
                       ),
@@ -124,9 +128,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Edit profile',
-                      style: TextStyle(
+                      style: GoogleFonts.roboto(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
                       ),
@@ -144,7 +148,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
             unselectedLabelColor: Colors.grey,
             indicatorColor: Colors.black,
             indicatorWeight: 3,
-            labelStyle: const TextStyle(
+            labelStyle: GoogleFonts.roboto(
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -173,10 +177,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       children: [
         Text(
           count,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        Text(
+          label,
+          style: GoogleFonts.roboto(fontSize: 14, color: Colors.grey[600]),
+        ),
       ],
     );
   }
@@ -190,7 +197,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           const SizedBox(height: 16),
           Text(
             title,
-            style: TextStyle(
+            style: GoogleFonts.roboto(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.grey[700],
@@ -199,7 +206,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: GoogleFonts.roboto(fontSize: 14, color: Colors.grey[500]),
           ),
         ],
       ),

@@ -238,25 +238,25 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 //           children: [
 //             const Text(
 //               'Welcome!',
-//               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+//               style: GoogleFonts.roboto(fontSize: 24, fontWeight: FontWeight.bold),
 //             ),
 //             const SizedBox(height: 16),
 //             if (user?.email != null)
 //               Text(
 //                 'Email: ${user!.email}',
-//                 style: const TextStyle(fontSize: 18),
+//                 style: const GoogleFonts.roboto(fontSize: 18),
 //               ),
 //             const SizedBox(height: 8),
 //             if (user?.displayName != null)
 //               Text(
 //                 'Name: ${user!.displayName}',
-//                 style: const TextStyle(fontSize: 18),
+//                 style: const GoogleFonts.roboto(fontSize: 18),
 //               ),
 //             const SizedBox(height: 8),
 //             if (user?.uid != null)
 //               Text(
 //                 'User ID: ${user!.uid}',
-//                 style: const TextStyle(fontSize: 14, color: Colors.grey),
+//                 style: const GoogleFonts.roboto(fontSize: 14, color: Colors.grey),
 //               ),
 //           ],
 //         ),

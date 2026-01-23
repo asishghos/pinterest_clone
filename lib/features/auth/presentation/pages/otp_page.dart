@@ -85,7 +85,7 @@
 //             const SizedBox(height: 6),
 //             Text(
 //               widget.email,
-//               style: const TextStyle(fontWeight: FontWeight.bold),
+//               style: const GoogleFonts.roboto(fontWeight: FontWeight.bold),
 //             ),
 //             const SizedBox(height: 32),
 
@@ -103,7 +103,7 @@
 //             const SizedBox(height: 24),
 
 //             if (_errorMessage != null)
-//               Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+//               Text(_errorMessage!, style: const GoogleFonts.roboto(color: Colors.red)),
 
 //             const SizedBox(height: 16),
 
