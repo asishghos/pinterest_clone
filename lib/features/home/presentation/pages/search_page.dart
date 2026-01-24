@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:pinterest/features/home/domain/entities/pin.dart';
 import 'package:pinterest/features/home/presentation/providers/home_provider.dart';
 import '../providers/search_provider.dart';
@@ -145,13 +147,31 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final searchState = ref.watch(searchProvider);
+    var searchState = ref.watch(searchProvider);
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
+
+        leading: searchState.query.isNotEmpty
+            ? InkWell(
+                onTap: () {
+                  _searchController.clear();
+
+                  setState(() {
+                    ref.read(searchProvider.notifier).clearSearch();
+                  });
+                },
+                child: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowLeft01,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              )
+            : null,
+
         title: Container(
           height: 50,
           decoration: BoxDecoration(

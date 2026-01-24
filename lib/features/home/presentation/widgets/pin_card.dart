@@ -46,25 +46,24 @@ class _PinCardState extends State<PinCard> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Stack(
-                  fit: StackFit.passthrough,
-                  children: [
-                    Hero(
-                      tag: widget.heroTag,
-                      child: CachedNetworkImage(
-                        imageUrl: widget.pin.src.medium,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) =>
-                            Container(color: _parseColor(widget.pin.avgColor)),
-                        errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.error),
-                        ),
+                child: Hero(
+                  tag: widget.heroTag,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.pin.src.medium,
+                    fit: BoxFit.cover,
+
+                    placeholder: (context, url) =>
+                        Container(color: _parseColor(widget.pin.avgColor)),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[300],
+                      child: const Center(
+                        child: Icon(Icons.error, color: Colors.black54),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
+
               Row(
                 children: [
                   // Text
