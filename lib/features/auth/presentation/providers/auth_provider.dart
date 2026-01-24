@@ -34,27 +34,47 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final FirebaseAuth _firebaseAuth;
-  // final GoogleSignIn _googleSignIn;
+  final GoogleSignIn _googleSignIn;
 
-  // AuthNotifier(this._firebaseAuth, this._googleSignIn) : super(AuthState()) {
-  //   _checkAuthStatus();
+  AuthNotifier(this._firebaseAuth, this._googleSignIn) : super(AuthState()) {
+    _initialize();
+  }
 
-  //   // Listen to auth state changes
-  //   _firebaseAuth.authStateChanges().listen((User? user) {
-  //     state = state.copyWith(isAuthenticated: user != null, user: user);
-  //   });
-  // }
-  AuthNotifier(this._firebaseAuth) : super(AuthState()) {
-    _checkAuthStatus();
+  // Initialize and listen to auth events
+  Future<void> _initialize() async {
+    state = state.copyWith(isLoading: true);
 
-    // Listen to auth state changes
-    _firebaseAuth.authStateChanges().listen((User? user) {
-      state = state.copyWith(isAuthenticated: user != null, user: user);
-    });
+    try {
+      // Initialize Google Sign-In (required for v7.x)
+      await _googleSignIn.initialize();
+
+      // Listen to Google Sign-In authentication events
+      _googleSignIn.authenticationEvents.listen((event) {
+        switch (event) {
+          case GoogleSignInAuthenticationEventSignIn():
+            _handleGoogleSignInEvent(event.user);
+            break;
+          case GoogleSignInAuthenticationEventSignOut():
+            state = state.copyWith(isAuthenticated: false, user: null);
+            break;
+          default:
+            break;
+        }
+      });
+
+      // Listen to Firebase auth state changes
+      _firebaseAuth.authStateChanges().listen((User? user) {
+        state = state.copyWith(isAuthenticated: user != null, user: user);
+      });
+
+      // Check current auth status
+      await _checkAuthStatus();
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
   }
 
   Future<void> _checkAuthStatus() async {
-    state = state.copyWith(isLoading: true);
     try {
       final user = _firebaseAuth.currentUser;
       state = state.copyWith(
@@ -64,6 +84,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  // Handle Google Sign-In event
+  Future<void> _handleGoogleSignInEvent(GoogleSignInAccount googleUser) async {
+    try {
+      // Get authentication details (synchronous in v7)
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+
+      // Create Firebase credential (only idToken is needed)
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase
+      await _firebaseAuth.signInWithCredential(credential);
+    } catch (e) {
+      state = state.copyWith(error: 'Failed to sign in with Google: $e');
     }
   }
 
@@ -133,54 +171,63 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Google Sign In
-  // Future<void> signInWithGoogle() async {
-  //   state = state.copyWith(isLoading: true, error: null);
+  // Google Sign In - CORRECT FOR google_sign_in ^7.2.0
+  Future<void> signInWithGoogle() async {
+    state = state.copyWith(isLoading: true, error: null);
 
-  //   try {
-  //     // Trigger Google Sign In flow
-  //     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    try {
+      // Check if platform supports authenticate method
+      if (!_googleSignIn.supportsAuthenticate()) {
+        throw Exception('This platform does not support Google Sign-In');
+      }
 
-  //     if (googleUser == null) {
-  //       // User canceled the sign-in
-  //       state = state.copyWith(isLoading: false);
-  //       return;
-  //     }
+      // Trigger the authentication flow
+      // This will emit events that are handled by the listener
+      await _googleSignIn.authenticate();
 
-  //     // Get auth tokens
-  //     final GoogleSignInAuthentication googleAuth =
-  //         await googleUser.authentication;
-
-  //     // Create Firebase credential
-  //     final credential = GoogleAuthProvider.credential(
-  //       accessToken: googleAuth.accessToken,
-  //       idToken: googleAuth.idToken,
-  //     );
-
-  //     // Firebase Sign In
-  //     final userCredential = await _firebaseAuth.signInWithCredential(
-  //       credential,
-  //     );
-
-  //     state = state.copyWith(
-  //       isAuthenticated: true,
-  //       user: userCredential.user,
-  //       isLoading: false,
-  //     );
-  //   } catch (e) {
-  //     state = state.copyWith(
-  //       isLoading: false,
-  //       error: 'Google sign in failed: $e',
-  //     );
-  //     throw e;
-  //   }
-  // }
+      state = state.copyWith(isLoading: false);
+    } on GoogleSignInException catch (e) {
+      String errorMessage = 'Google sign in failed';
+      if (e.code == 'sign_in_canceled') {
+        errorMessage = 'Sign in was canceled';
+      } else if (e.code == 'sign_in_failed') {
+        errorMessage = 'Sign in failed. Please try again.';
+      } else if (e.code == 'network_error') {
+        errorMessage = 'Network error. Please check your connection.';
+      } else {
+        errorMessage = '${e.code}: ${e.description}';
+      }
+      state = state.copyWith(isLoading: false, error: errorMessage);
+      throw Exception(errorMessage);
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'Firebase authentication failed';
+      if (e.code == 'account-exists-with-different-credential') {
+        errorMessage =
+            'An account already exists with the same email address but different sign-in credentials.';
+      } else if (e.code == 'invalid-credential') {
+        errorMessage = 'The credential is malformed or has expired.';
+      } else if (e.code == 'operation-not-allowed') {
+        errorMessage =
+            'Google sign-in is not enabled. Please enable it in Firebase Console.';
+      } else if (e.code == 'user-disabled') {
+        errorMessage = 'This user account has been disabled.';
+      }
+      state = state.copyWith(isLoading: false, error: errorMessage);
+      throw Exception(errorMessage);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Google sign in failed: ${e.toString()}',
+      );
+      throw e;
+    }
+  }
 
   // Sign Out
   Future<void> signOut() async {
     try {
-      // await Future.wait([_firebaseAuth.signOut(), _googleSignIn.signOut()]);
-      await _firebaseAuth.signOut();
+      await Future.wait([_firebaseAuth.signOut(), _googleSignIn.signOut()]);
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
 
@@ -196,97 +243,13 @@ final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
 });
 
-// final googleSignInProvider = Provider<GoogleSignIn>((ref) {
-//   return GoogleSignIn(scopes: ['email']);
-// });
+final googleSignInProvider = Provider<GoogleSignIn>((ref) {
+  // Use GoogleSignIn.instance (singleton) for v7.x
+  return GoogleSignIn.instance;
+});
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final firebaseAuth = ref.watch(firebaseAuthProvider);
-  // final googleSignIn = ref.watch(googleSignInProvider);
-  // return AuthNotifier(firebaseAuth, googleSignIn);
-  return AuthNotifier(firebaseAuth);
+  final googleSignIn = ref.watch(googleSignInProvider);
+  return AuthNotifier(firebaseAuth, googleSignIn);
 });
-
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import '../providers/auth_provider.dart';
-
-// class HomePage extends ConsumerWidget {
-//   const HomePage({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final authState = ref.watch(authProvider);
-//     final user = authState.user;
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Home'),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.logout),
-//             onPressed: () async {
-//               await ref.read(authProvider.notifier).signOut();
-//             },
-//           ),
-//         ],
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             const Text(
-//               'Welcome!',
-//               style: GoogleFonts.roboto(fontSize: 24, fontWeight: FontWeight.bold),
-//             ),
-//             const SizedBox(height: 16),
-//             if (user?.email != null)
-//               Text(
-//                 'Email: ${user!.email}',
-//                 style: const GoogleFonts.roboto(fontSize: 18),
-//               ),
-//             const SizedBox(height: 8),
-//             if (user?.displayName != null)
-//               Text(
-//                 'Name: ${user!.displayName}',
-//                 style: const GoogleFonts.roboto(fontSize: 18),
-//               ),
-//             const SizedBox(height: 8),
-//             if (user?.uid != null)
-//               Text(
-//                 'User ID: ${user!.uid}',
-//                 style: const GoogleFonts.roboto(fontSize: 14, color: Colors.grey),
-//               ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// ============================================
-// SETUP INSTRUCTIONS
-// ============================================
-/*
-1. Add dependencies to pubspec.yaml:
-   dependencies:
-     firebase_core: ^2.24.2
-     firebase_auth: ^4.15.3
-     google_sign_in: ^6.1.6
-     shared_preferences: ^2.2.2
-     flutter_riverpod: ^2.4.9
-
-2. Install FlutterFire CLI:
-   dart pub global activate flutterfire_cli
-
-3. Configure Firebase for your project:
-   flutterfire configure
-
-4. For Google Sign-In:
-   - Android: SHA-1 fingerprint is automatically configured by flutterfire
-   - iOS: Add URL scheme in Info.plist (done automatically by flutterfire)
-   - Enable Google Sign-In in Firebase Console
-
-5. Run the app!
-*/

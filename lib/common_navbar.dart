@@ -37,9 +37,8 @@ class CommonNavbar extends StatelessWidget {
 
       case 3:
         debugPrint("Messages clicked → NOT IMPLEMENTED YET");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Messages page not added yet")),
-        );
+        router.go('/messages');
+
         break;
 
       case 4:
@@ -56,120 +55,109 @@ class CommonNavbar extends StatelessWidget {
       isScrollControlled: true,
       builder: (context) => Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceVariant,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
+            // Close button and title
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: Colors.white, size: 32),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+                const Spacer(),
+                const Text(
+                  'Start creating now',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                const SizedBox(width: 28), // Balance the close button
+              ],
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Create',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            const SizedBox(height: 28),
+
+            // Three circular options
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCircularOption(
+                  context,
+                  icon: HugeIcons.strokeRoundedPin02,
+                  label: 'Pin',
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Handle create pin
+                  },
+                ),
+                _buildCircularOption(
+                  context,
+                  icon: HugeIcons.strokeRoundedImage03,
+                  label: 'Collage',
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Handle create collage
+                  },
+                ),
+                _buildCircularOption(
+                  context,
+                  icon: HugeIcons.strokeRoundedGrid,
+                  label: 'Board',
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Handle create board
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            _buildCreateOption(
-              context,
-              icon: Icons.image_outlined,
-              title: 'Create Pin',
-              subtitle: 'Upload an image',
-              onTap: () {
-                Navigator.pop(context);
-                // Handle create pin
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildCreateOption(
-              context,
-              icon: Icons.video_library_outlined,
-              title: 'Create Idea Pin',
-              subtitle: 'Upload a video',
-              onTap: () {
-                Navigator.pop(context);
-                // Handle create idea pin
-              },
-            ),
-            const SizedBox(height: 16),
-            _buildCreateOption(
-              context,
-              icon: Icons.article_outlined,
-              title: 'Create Board',
-              subtitle: 'Organize your pins',
-              onTap: () {
-                Navigator.pop(context);
-                // Handle create board
-              },
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCreateOption(
+  Widget _buildCircularOption(
     BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
+    required dynamic icon,
+    required String label,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: Colors.black87),
+      borderRadius: BorderRadius.circular(50),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: const Color(0xFF4A4A4A),
+              borderRadius: BorderRadius.circular(24),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.roboto(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.roboto(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
+            padding: const EdgeInsets.all(16),
+            child: HugeIcon(icon: icon, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            label,
+            style: GoogleFonts.roboto(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
-            Icon(Icons.chevron_right, color: Colors.grey[400]),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

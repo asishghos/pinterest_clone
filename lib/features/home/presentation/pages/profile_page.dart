@@ -1,214 +1,339 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
+import 'dart:developer' as developer;
 
-class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({super.key});
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:pinterest/core/constants/app_colors.dart';
+
+class ProfilePage extends StatefulWidget {
+  ProfilePage({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends ConsumerState<ProfilePage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ProfilePageState extends State<ProfilePage> {
+  User? user;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    user = FirebaseAuth.instance.currentUser;
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  Future<List<Map<String, dynamic>>> getSavedItems() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return [];
+
+    final docRef = FirebaseFirestore.instance.collection("users").doc(user.uid);
+
+    final doc = await docRef.get();
+
+    if (!doc.exists) return [];
+
+    return List<Map<String, dynamic>>.from(doc.data()?['savedItems'] ?? []);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(authProvider.notifier).signOut();
-              if (context.mounted) {
-                context.go('/auth');
-              }
-            },
-            tooltip: 'Logout',
-          ),
+      appBar: AppBar(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 8),
+            CircleAvatar(
+              radius: 50,
+              backgroundColor: AppColors.surfaceVariant,
+              child: HugeIcon(icon: HugeIcons.strokeRoundedUser, size: 40),
+            ),
+            SizedBox(height: 16),
+            Text(
+              user!.email ?? 'Anonymous User',
+              style: GoogleFonts.roboto(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              '@anonymous_user',
+              style: GoogleFonts.roboto(color: Colors.grey, fontSize: 14),
+            ),
+            SizedBox(height: 8),
+            Text(
+              '0 followers · 0 following',
+              style: GoogleFonts.roboto(color: Colors.grey[400], fontSize: 14),
+            ),
+            SizedBox(height: 24),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[800],
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      child: Text(
+                        'Share',
+                        style: GoogleFonts.roboto(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: BorderSide(color: Colors.grey[700]!),
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      child: Text(
+                        'Edit profile',
+                        style: GoogleFonts.roboto(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 24),
+            DefaultTabController(
+              length: 3,
+              child: Column(
+                children: [
+                  TabBar(
+                    indicatorColor: Colors.white,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.grey,
+                    tabs: [
+                      Tab(text: 'Pins'),
+                      Tab(text: 'Boards'),
+                      Tab(text: 'Collages'),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search your Pins',
+                        hintStyle: GoogleFonts.roboto(color: Colors.grey[600]),
+                        prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                        filled: true,
+                        fillColor: Colors.grey[900],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(28),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      children: [
+                        _buildFilterChip(Icons.grid_view, true),
+                        SizedBox(width: 8),
+                        _buildFilterChip(
+                          Icons.star,
+                          false,
+                          label: 'Favourites',
+                        ),
+                        SizedBox(width: 8),
+                        _buildFilterChip(null, false, label: 'Created by you'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Board suggestions',
+                        style: GoogleFonts.roboto(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  SizedBox(
+                    height: 180,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      children: [
+                        _buildBoardSuggestion('Fashion outfits', '0 Pins', [
+                          Colors.red,
+                          Colors.black,
+                        ]),
+                        _buildBoardSuggestion('Movies', '0 Pins', [
+                          Colors.grey,
+                          Colors.blueGrey,
+                        ]),
+                        _buildBoardSuggestion('Simple dresses', '0 Pins', [
+                          Colors.blue,
+                          Colors.lightBlue,
+                        ]),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Your saved Pins',
+                        style: GoogleFonts.roboto(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  FutureBuilder<Widget>(
+                    future: _buildPinsGrid(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error loading pins'));
+                      }
+                      return snapshot.data ?? SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(IconData? icon, bool selected, {String? label}) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: selected ? Colors.white : Colors.grey[850],
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null)
+            Icon(icon, size: 20, color: selected ? Colors.black : Colors.white),
+          if (label != null) ...[
+            if (icon != null) SizedBox(width: 4),
+            Text(
+              label,
+              style: GoogleFonts.roboto(
+                color: selected ? Colors.black : Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ],
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildBoardSuggestion(String title, String count, List<Color> colors) {
+    return Container(
+      width: 150,
+      margin: EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
-          // Profile Picture
           Container(
-            width: 120,
             height: 120,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.grey[300],
-              border: Border.all(color: Colors.grey[200]!, width: 3),
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(colors: colors),
             ),
-            child: const Icon(Icons.person, size: 60),
-          ),
-          const SizedBox(height: 16),
-          // Name
-          Text(
-            'Your Name',
-            style: GoogleFonts.roboto(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '@username',
-            style: GoogleFonts.roboto(fontSize: 16, color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 16),
-          // Stats
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildStat('12', 'Following'),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                width: 1,
-                height: 24,
-                color: Colors.grey[300],
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Create',
+                  style: GoogleFonts.roboto(fontWeight: FontWeight.w600),
+                ),
               ),
-              _buildStat('2.5K', 'Followers'),
-            ],
-          ),
-          const SizedBox(height: 24),
-          // Action Buttons
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      side: BorderSide(color: Colors.grey[300]!),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: Text(
-                      'Share profile',
-                      style: GoogleFonts.roboto(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[200],
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Edit profile',
-                      style: GoogleFonts.roboto(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Tabs
-          TabBar(
-            controller: _tabController,
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.black,
-            indicatorWeight: 3,
-            labelStyle: GoogleFonts.roboto(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-            tabs: const [
-              Tab(text: 'Created'),
-              Tab(text: 'Saved'),
-            ],
-          ),
-          // Content
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildEmptyState('No pins yet', 'Create your first pin!'),
-                _buildEmptyState('Nothing saved yet', 'Save ideas you like'),
-              ],
-            ),
+          SizedBox(height: 8),
+          Text(title, style: GoogleFonts.roboto(fontWeight: FontWeight.w600)),
+          Text(
+            count,
+            style: GoogleFonts.roboto(color: Colors.grey[600], fontSize: 13),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStat(String count, String label) {
-    return Column(
-      children: [
-        Text(
-          count,
-          style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.bold),
+  Future<Widget> _buildPinsGrid() async {
+    final savedItems = await getSavedItems();
+    developer.log(savedItems[0].toString());
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.0),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.7,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.roboto(fontSize: 14, color: Colors.grey[600]),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState(String title, String subtitle) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.push_pin_outlined, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: GoogleFonts.roboto(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+        itemCount: savedItems.length,
+        itemBuilder: (context, index) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              color: Colors.grey[850],
+              child: Center(
+                child: Image.network(
+                  savedItems[index]['imageUrl'] ?? '',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.broken_image, color: Colors.grey);
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            style: GoogleFonts.roboto(fontSize: 14, color: Colors.grey[500]),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

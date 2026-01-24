@@ -12,6 +12,7 @@ class MainShell extends StatelessWidget {
 
     if (location.startsWith('/search')) return 1;
     if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/messages')) return 3;
 
     return 0; // Home default
   }
